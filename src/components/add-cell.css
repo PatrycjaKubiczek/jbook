@@ -4,6 +4,7 @@
     transition: opacity 0.35s;
     margin: 10px 0;
 }
+
 .add-cell:hover {
     opacity: 1
 }
