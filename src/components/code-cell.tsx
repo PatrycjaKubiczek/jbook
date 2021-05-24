@@ -1,11 +1,11 @@
-import './code-cell.css'
-import { useEffect } from 'react';
-import CodeEditor from './code-editor';
-import Preview from './preview';
-import Resizable from './resizable';
-import { Cell } from '../state';
-import { useActions } from '../hooks/use-actions';
-import { useTypedSelector } from '../hooks/use-typed-selector';
+import "./code-cell.css";
+import { useEffect } from "react";
+import CodeEditor from "./code-editor";
+import Preview from "./preview";
+import Resizable from "./resizable";
+import { Cell } from "../state";
+import { useActions } from "../hooks/use-actions";
+import { useTypedSelector } from "../hooks/use-typed-selector";
 
 interface CodeCellProps {
   cell: Cell;
@@ -15,15 +15,42 @@ const CodeCell: React.FC<CodeCellProps> = ({ cell }) => {
   const { updateCell, createBundle } = useActions();
   const bundle = useTypedSelector((state) => state.bundles?.[cell.id]);
 
-  useEffect(() => {
-    if(!bundle){
-        createBundle(cell.id, cell.content);
+  const cumulativeCode = useTypedSelector((state) => {
+    const { data, order } = state.cells;
+    const orderedCells = order.map((id) => data[id]);
+
+    const cumulativeCode = [
+      `
+      const show = (value) => {
+        if(typeof value === 'object') {
+          document.querySelector("#root").innerHTML = JSON.stringify(value);
+        } else {
+        document.querySeletor("#root").innerHTML = value;
+        }
+      }
+      `,
+    ];
+    for (let c of orderedCells) {
+      if (c.type === "code") {
+        cumulativeCode.push(c.content);
+      }
+
+      if (c.id === cell.id) {
+        break;
+      }
     }
-  })
+    return cumulativeCode;
+  });
+
+  useEffect(() => {
+    if (!bundle) {
+      createBundle(cell.id, cumulativeCode?.join("\n"));
+    }
+  });
 
   useEffect(() => {
     const timer = setTimeout(async () => {
-      createBundle(cell.id, cell.content);
+      createBundle(cell.id, cumulativeCode?.join("\n"));
     }, 750);
 
     return () => {
@@ -31,7 +58,7 @@ const CodeCell: React.FC<CodeCellProps> = ({ cell }) => {
     };
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cell.content, cell.id, createBundle]);
+  }, [cumulativeCode, cell.id, createBundle]);
 
   return (
     <Resizable direction="vertical">
