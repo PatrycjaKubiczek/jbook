@@ -1,5 +1,5 @@
-import "./preview.css";
-import { useRef, useEffect } from "react";
+import './preview.css';
+import { useRef, useEffect } from 'react';
 
 interface PreviewProps {
   code: string;
@@ -16,7 +16,7 @@ const html = `
         <script>
           const handleError = (err) => {
             const root = document.querySelector('#root');
-            root.innerHTML = '<div style="color: red; font-family: monospace;"><h4>Runtime error</h4>' + err + '</div>';
+            root.innerHTML = '<div style="color: red;"><h4>Runtime Error</h4>' + err + '</div>';
             console.error(err);
           };
 
@@ -43,7 +43,7 @@ const Preview: React.FC<PreviewProps> = ({ code, err }) => {
   useEffect(() => {
     iframe.current.srcdoc = html;
     setTimeout(() => {
-      iframe.current.contentWindow.postMessage(code, "*");
+      iframe.current.contentWindow.postMessage(code, '*');
     }, 50);
   }, [code]);
 
